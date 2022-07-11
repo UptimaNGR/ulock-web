@@ -50,7 +50,38 @@ export default {
       rules: {
         required: value => !!value || 'Required.',
         min: v => v.length >= 6 || 'Min 6 characters'
-      }
+      },
+      connection: {
+        host: 'broker.emqx.io',
+        port: 8083,
+        endpoint: '/mqtt',
+        clean: true, // Reserved session
+        connectTimeout: 4000, // Time out
+        reconnectPeriod: 4000, // Reconnection interval
+        // Certification Information
+        clientId: 'mqttjs_3be2c321',
+        username: 'emqx_test',
+        password: 'emqx_test'
+      },
+      subscription: {
+        topic: 'topic/mqttx',
+        qos: 0
+      },
+      publish: {
+        topic: 'topic/browser',
+        qos: 0,
+        payload: '{ "msg": "Hello, I am browser." }'
+      },
+      receiveNews: '',
+      qosList: [
+        { label: 0, value: 0 },
+        { label: 1, value: 1 },
+        { label: 2, value: 2 }
+      ],
+      client: {
+        connected: false
+      },
+      subscribeSuccess: false
     }
   },
   methods: {

@@ -19,7 +19,10 @@ export default new Vuex.Store({
     username: null,
     mqttUsername: null,
     mqttPassword: null,
-    mqttAppID: null
+    mqttAppID: null,
+    client: {
+      connected: false
+    }
   },
   getters: {
     isLoggedIn: state => state.loggedIn,

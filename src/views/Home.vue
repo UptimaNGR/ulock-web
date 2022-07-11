@@ -6,7 +6,7 @@
           cols="12"
           sm="6"
           class="d-flex align-center justify-center primary--text">
-          Hi {{}}
+          Hi {{getUsername}}
         </v-col>
       </v-row>
       <v-row align="center" justify="center">
@@ -19,7 +19,6 @@
               class="d-flex align-center justify-center ">
                 <v-icon color="primary">mdi-battery{{batterySuffix(battery)}}</v-icon>
                 <p class="primary--text pa-0 mx-3 my-0">{{battery}} %</p>
-
             </v-col>
           </v-row>
           <v-row align="center" justify="center">
@@ -96,7 +95,11 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
+  computed: {
+    ...mapGetters(['getUsername'])
+  },
   data () {
     return {
       battery: 90,
