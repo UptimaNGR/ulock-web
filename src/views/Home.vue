@@ -128,7 +128,8 @@ export default {
   },
   created () {
     if (!this.client.connected) {
-      this.createConnection()
+      console.log('created')
+      this.fetchMqttDetails()
       // this.client.on('connect', () => {
       //   console.log('Connection succeeded!')
       // })
@@ -139,21 +140,21 @@ export default {
       battery: null,
       viewLogs: false,
       logs: [
-        { name: 'ola', time: 'time', via: 'Fingerprint' },
-        { name: 'demp', time: 'time', via: 'Fingerprint' },
-        { name: 'craft', time: 'time', via: 'web' }
+        // { name: 'ola', time: 'time', via: 'Fingerprint' },
+        // { name: 'demp', time: 'time', via: 'Fingerprint' },
+        // { name: 'craft', time: 'time', via: 'web' }
       ],
       connection: {
-        host: 'broker.hivemq.com',
-        port: 1883,
-        endpoint: '/mqtt',
+        host: 'mqtt.uptima.co',
+        port: 1889,
+        endpoint: '',
         clean: true, // Reserved session
         connectTimeout: 4000, // Time out
         reconnectPeriod: 4000, // Reconnection interval
         // Certification Information
-        clientId: 'mqttjs_3be2c321',
-        username: 'emqx_test',
-        password: 'emqx_test'
+        clientId: null,
+        username: null,
+        password: null
       },
       subscription: {
         topic: 'door/battery',
@@ -187,6 +188,24 @@ export default {
     getLogs () {
       this.viewLogs = true
     },
+    fetchMqttDetails () {
+      console.log('fetch func called')
+      const mqttURI = 'mqtt-user-info'
+      this.$axios
+        .get(mqttURI)
+        .then((result) => {
+          console.log(result.data.data)
+          const data = result.data.data.mqttInfo[0]
+          this.connection.clientId = data.id
+          this.connection.username = data.username
+          this.connection.password = data.password
+          this.createConnection()
+        })
+        .catch((err) => {
+          // this.$router.push('/home')
+          console.log(err)
+        })
+    },
     createConnection () {
       console.log('con func called')
       // Connect string, and specify the connection method used through protocol
@@ -197,9 +216,9 @@ export default {
       // wxs WeChat mini app connection
       // alis Alipay mini app connection
       // const { host, port } = this.connection
-      const connectUrl = 'ws://broker.hivemq.com:8000/mqtt'
+      const connectUrl = `mqtt://${this.connection.host}:${this.connection.port}`
       try {
-        this.client = mqtt.connect(connectUrl, { clientId: this.connection.clientId })
+        this.client = mqtt.connect(connectUrl, { clientId: this.connection.clientId, protocol: 'mqtt', username: this.connection.username, password: this.connection.password })
       } catch (error) {
         console.log('mqtt.connect error', error)
       }
