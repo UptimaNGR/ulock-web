@@ -92,14 +92,12 @@ export default {
         username: this.username,
         password: this.password
       }
-      console.log(loginData)
       this.$axios
         .post(loginURI, loginData)
         .then((result) => {
           const data = { token: result.data.data.token, username: this.username }
           this.user(data)
           this.$router.push('/')
-          console.log(result.data.data)
         })
         .catch((err) => {
           // this.$router.push('/home')

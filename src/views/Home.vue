@@ -128,11 +128,7 @@ export default {
   },
   created () {
     if (!this.client.connected) {
-      console.log('created')
       this.fetchMqttDetails()
-      // this.client.on('connect', () => {
-      //   console.log('Connection succeeded!')
-      // })
     }
   },
   data () {
@@ -146,7 +142,7 @@ export default {
       ],
       connection: {
         host: 'mqtt.uptima.co',
-        port: 1889,
+        port: 8883,
         endpoint: '',
         clean: true, // Reserved session
         connectTimeout: 4000, // Time out
@@ -194,7 +190,6 @@ export default {
       this.$axios
         .get(mqttURI)
         .then((result) => {
-          console.log(result.data.data)
           const data = result.data.data.mqttInfo[0]
           this.connection.clientId = data.id
           this.connection.username = data.username
@@ -222,9 +217,6 @@ export default {
       } catch (error) {
         console.log('mqtt.connect error', error)
       }
-      // this.client.on('connect', () => {
-      //   console.log('Connection succeeded!')
-      // })
       this.client.on('offline', () => {
         console.log('Disconnected!')
       })
