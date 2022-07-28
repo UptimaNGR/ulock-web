@@ -211,9 +211,9 @@ export default {
       // wxs WeChat mini app connection
       // alis Alipay mini app connection
       // const { host, port } = this.connection
-      const connectUrl = `mqtts://${this.connection.host}:${this.connection.port}`
+      const connectUrl = `tcp://${this.connection.host}:${this.connection.port}`
       try {
-        this.client = mqtt.connect(connectUrl, { clientId: this.connection.clientId, protocol: 'mqtts', username: this.connection.username, password: this.connection.password })
+        this.client = mqtt.connect(connectUrl, { clientId: this.connection.clientId, protocol: 'tcp', username: this.connection.username, password: this.connection.password })
       } catch (error) {
         console.log('mqtt.connect error', error)
       }
