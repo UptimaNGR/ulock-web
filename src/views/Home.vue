@@ -73,19 +73,15 @@
                   <th class="text-left">
                     Time
                   </th>
-                  <th class="text-left">
-                    Via
-                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   v-for="item in logs"
-                  :key="item.name"
+                  :key="item.id"
                 >
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.time }}</td>
-                  <td>{{ item.via }}</td>
+                  <td>{{ item.opened_by }}</td>
+                  <td>{{ new Date(item.created_at).toUTCString() }}</td>
                 </tr>
               </tbody>
             </template>
@@ -182,6 +178,21 @@ export default {
       }
     },
     getLogs () {
+      const logsURI = 'door-log'
+      this.$axios
+        .get(logsURI)
+        .then((result) => {
+          const logs = result.data.data.log
+          this.logs = logs
+          console.log(logs)
+          console.log(result)
+
+          this.viewLogs = true
+        })
+        .catch((err) => {
+          // this.$router.push('/home')
+          console.log(err)
+        })
       this.viewLogs = true
     },
     fetchMqttDetails () {
