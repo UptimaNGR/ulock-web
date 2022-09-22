@@ -184,9 +184,6 @@ export default {
         .then((result) => {
           const logs = result.data.data.log
           this.logs = logs
-          console.log(logs)
-          console.log(result)
-
           this.viewLogs = true
         })
         .catch((err) => {
@@ -196,7 +193,6 @@ export default {
       this.viewLogs = true
     },
     fetchMqttDetails () {
-      console.log('fetch func called')
       const mqttURI = 'mqtt-user-info'
       this.$axios
         .get(mqttURI)
@@ -213,7 +209,6 @@ export default {
         })
     },
     createConnection () {
-      console.log('con func called')
       // Connect string, and specify the connection method used through protocol
       // ws unencrypted WebSocket connection
       // wss encrypted WebSocket connection
@@ -238,7 +233,6 @@ export default {
         if (topic === 'door/battery') {
           this.battery = message
         }
-        console.log(`Received message ${message} from topic ${topic}`)
       })
       const { topic, qos } = this.subscription
       this.client.subscribe(topic, { qos }, (error, res) => {
