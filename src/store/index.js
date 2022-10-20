@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import VuexPersistence from 'vuex-persist'
+import router from '../router'
 const vuexPersistence = new VuexPersistence({
   storage: localStorage,
   key: 'uLock',
@@ -52,6 +53,9 @@ export default new Vuex.Store({
     clearAll ({ commit }) {
       window.localStorage.removeItem('uLock')
       commit('clearData')
+      if (router.currentRoute.path !== '/login') {
+        router.push('/login')
+      }
     }
   },
   plugins: [vuexPersistence.plugin]
