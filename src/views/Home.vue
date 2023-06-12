@@ -47,118 +47,6 @@
           </div>
         </v-col>
       </v-row>
-      <!-- <v-row align="center" justify="center">
-        <v-col
-          cols="12"
-          sm="6"
-          class="d-flex align-center justify-center primary--text">
-          Hi {{getUsername}}
-        </v-col>
-      </v-row> -->
-      <!-- <v-row align="center" justify="center">
-        <v-col
-          v-if="!viewLogs">
-          <v-row align="center" justify="center" v-if="battery">
-            <v-col
-              cols="12"
-              sm="6"
-              class="d-flex align-center justify-center ">
-                <v-icon :color="(battery > 29) ? 'primary': 'red'">mdi-battery{{batterySuffix(battery)}}</v-icon>
-                <p class=" pa-0 mx-3 my-0" :class="(battery > 29) ? 'primary--text': 'red--text'">{{battery}} %</p>
-            </v-col>
-            <v-col>
-              <p>Location: {{ battery }}</p>
-            </v-col>
-          </v-row>
-          <v-row align="center" justify="center" v-else>
-            <v-col
-              cols="12"
-              sm="6"
-              class="d-flex align-center justify-center ">
-                <v-icon color="red">mdi-battery-unknown</v-icon>
-                <p class="red--text pa-0 mx-3 my-0">Unavaliable</p>
-            </v-col>
-          </v-row> -->
-          <!-- <v-row align="center" justify="center">
-            <v-col
-              class="d-flex align-center justify-center">
-              <v-btn
-                color="primary"
-                text
-                @click="openDoor"
-              >
-                <v-icon left>
-                  mdi-door-open
-                </v-icon>
-                Open door
-              </v-btn>
-            </v-col>
-          </v-row> -->
-          <!-- <v-row align="center" justify="center">
-            <v-col
-              class="d-flex align-center justify-center">
-              <v-switch
-                color="primary"
-                v-model="engine"
-              >
-                <v-icon left>
-                  mdi-door-open
-                </v-icon>
-                Engine
-              </v-switch>
-            </v-col>
-          </v-row>
-          <v-row align="center" justify="center">
-            <v-col
-              class="d-flex align-center justify-center">
-              <v-btn
-                color="primary"
-                text
-                @click = "getLogs"
-              >
-                <v-icon left>
-                  mdi-clock-outline
-                </v-icon>
-                View Access logs
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col
-          v-else>
-          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-                <tr>
-                  <th class="text-left">
-                    Name
-                  </th>
-                  <th class="text-left">
-                    Time
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="item in logs"
-                  :key="item.id"
-                >
-                  <td>{{ item.opened_by }}</td>
-                  <td>{{ new Date(item.created_at).toUTCString() }}</td>
-                </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
-          <v-btn
-            class="mr-4 mt-4"
-            outlined
-            color="primary"
-            @click="viewLogs=false"
-          >
-            back
-          </v-btn>
-        </v-col>
-      </v-row> -->
     </v-col>
     <v-col
       cols="12"
@@ -198,9 +86,6 @@ export default {
       viewLogs: false,
       engine: false,
       logs: [
-        // { name: 'ola', time: 'time', via: 'Fingerprint' },
-        // { name: 'demp', time: 'time', via: 'Fingerprint' },
-        // { name: 'craft', time: 'time', via: 'web' }
       ],
       connection: {
         host: 'demp.uptima.co',
@@ -250,18 +135,13 @@ export default {
         .get(logsURI)
         .then((result) => {
           const logs = result.data.data
-          console.log(logs)
-          // this.logs = logs
-          // this.viewLogs = true
           this.mapData = logs.map((d) => {
             return d.data
           })
         })
         .catch((err) => {
-          // this.$router.push('/home')
           console.log(err)
         })
-      // this.viewLogs = true
     },
     fetchMqttDetails () {
       const mqttURI = 'mqtt-user-info'
@@ -275,19 +155,10 @@ export default {
           this.createConnection()
         })
         .catch((err) => {
-          // this.$router.push('/home')
           console.log(err)
         })
     },
     createConnection () {
-      // Connect string, and specify the connection method used through protocol
-      // ws unencrypted WebSocket connection
-      // wss encrypted WebSocket connection
-      // mqtt unencrypted TCP connection
-      // mqtts encrypted TCP connection
-      // wxs WeChat mini app connection
-      // alis Alipay mini app connection
-      // const { host, port } = this.connection
       const connectUrl = `mqtt://${this.connection.host}:${this.connection.port}`
       try {
         this.client = mqtt.connect(connectUrl, { clientId: this.connection.clientId, protocol: 'wss', username: this.connection.username, password: this.connection.password })
@@ -337,14 +208,6 @@ export default {
       window.open(`
       https://www.google.com/maps/dir//'${lat},${long}'/@,13z/data=!4m6!4m5!1m0!1m3!2m2!1d${long}!2d${lat}?entry=ttu`, '_blank')
     }
-    // openDoor () {
-    //   const { topic, qos } = this.publish
-    //   this.client.publish(topic, qos, error => {
-    //     if (error) {
-    //       console.log('Publish error', error)
-    //     }
-    //   })
-    // }
   },
   watch: {
     engine (val) {
