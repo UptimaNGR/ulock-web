@@ -1,15 +1,61 @@
 <template>
   <v-row align="center" justify="center">
     <v-col v-if="client.connected">
-      <v-row align="center" justify="center">
+      <v-row>
+        <v-col>{{getUsername}}</v-col>
+        <v-col
+          class="d-flex align-center justify-center">
+          <v-switch
+            color="primary"
+            v-model="engine"
+          >
+            <v-icon left>
+              mdi-door-open
+            </v-icon>
+            Engine
+          </v-switch>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <div v-if="mapData.length > 0">
+            <GmapMap
+              :center="getLatLng(mapData[mapData.length-1])"
+              :zoom="20"
+              style="width: 100vw; height: 100vh"
+              map-type-id="hybrid"
+            >
+              <GmapPolyline
+                :draggable="false"
+                :editable="false"
+                :clickable="true"
+                :options="{
+                  geodesic: true,
+                  strokeColor: '#008000',
+                  path: mapData.map((path) => { return getLatLng(path) }),
+                  strokeWeight: '10'
+                }"
+              ></GmapPolyline>
+              <GmapMarker
+                :position="getLatLng(mapData[mapData.length-1])"
+                :clickable="true"
+                @click="goToAddress(mapData[mapData.length-1])"
+                :draggable="false"
+                title="Current location"
+              />
+            </GmapMap>
+          </div>
+        </v-col>
+      </v-row>
+      <!-- <v-row align="center" justify="center">
         <v-col
           cols="12"
           sm="6"
           class="d-flex align-center justify-center primary--text">
           Hi {{getUsername}}
         </v-col>
-      </v-row>
-      <v-row align="center" justify="center">
+      </v-row> -->
+      <!-- <v-row align="center" justify="center">
         <v-col
           v-if="!viewLogs">
           <v-row align="center" justify="center" v-if="battery">
@@ -20,6 +66,9 @@
                 <v-icon :color="(battery > 29) ? 'primary': 'red'">mdi-battery{{batterySuffix(battery)}}</v-icon>
                 <p class=" pa-0 mx-3 my-0" :class="(battery > 29) ? 'primary--text': 'red--text'">{{battery}} %</p>
             </v-col>
+            <v-col>
+              <p>Location: {{ battery }}</p>
+            </v-col>
           </v-row>
           <v-row align="center" justify="center" v-else>
             <v-col
@@ -29,8 +78,8 @@
                 <v-icon color="red">mdi-battery-unknown</v-icon>
                 <p class="red--text pa-0 mx-3 my-0">Unavaliable</p>
             </v-col>
-          </v-row>
-          <v-row align="center" justify="center">
+          </v-row> -->
+          <!-- <v-row align="center" justify="center">
             <v-col
               class="d-flex align-center justify-center">
               <v-btn
@@ -43,6 +92,20 @@
                 </v-icon>
                 Open door
               </v-btn>
+            </v-col>
+          </v-row> -->
+          <!-- <v-row align="center" justify="center">
+            <v-col
+              class="d-flex align-center justify-center">
+              <v-switch
+                color="primary"
+                v-model="engine"
+              >
+                <v-icon left>
+                  mdi-door-open
+                </v-icon>
+                Engine
+              </v-switch>
             </v-col>
           </v-row>
           <v-row align="center" justify="center">
@@ -95,7 +158,7 @@
             back
           </v-btn>
         </v-col>
-      </v-row>
+      </v-row> -->
     </v-col>
     <v-col
       cols="12"
@@ -125,12 +188,15 @@ export default {
   created () {
     if (!this.client.connected) {
       this.fetchMqttDetails()
+      this.getLogs()
     }
   },
   data () {
     return {
+      mapData: [],
       battery: null,
       viewLogs: false,
+      engine: false,
       logs: [
         // { name: 'ola', time: 'time', via: 'Fingerprint' },
         // { name: 'demp', time: 'time', via: 'Fingerprint' },
@@ -149,11 +215,11 @@ export default {
         password: null
       },
       subscription: {
-        topic: 'door/battery',
+        topic: 'uptima/tracker/location',
         qos: 0
       },
       publish: {
-        topic: 'door/open',
+        topic: 'uptima/tracker/engine',
         qos: 0
       },
       receiveNews: '',
@@ -165,6 +231,7 @@ export default {
       client: {
         connected: false
       },
+      topic: 'uptima/tracker/location',
       subscribeSuccess: false
     }
   },
@@ -178,19 +245,23 @@ export default {
       }
     },
     getLogs () {
-      const logsURI = 'door-log'
+      const logsURI = `data?topic=${this.topic}`
       this.$axios
         .get(logsURI)
         .then((result) => {
-          const logs = result.data.data.log
-          this.logs = logs
-          this.viewLogs = true
+          const logs = result.data.data
+          console.log(logs)
+          // this.logs = logs
+          // this.viewLogs = true
+          this.mapData = logs.map((d) => {
+            return d.data
+          })
         })
         .catch((err) => {
           // this.$router.push('/home')
           console.log(err)
         })
-      this.viewLogs = true
+      // this.viewLogs = true
     },
     fetchMqttDetails () {
       const mqttURI = 'mqtt-user-info'
@@ -230,8 +301,9 @@ export default {
         console.log('Connection failed', error)
       })
       this.client.on('message', (topic, message) => {
-        if (topic === 'door/battery') {
-          this.battery = message
+        if (topic === 'uptima/tracker/location') {
+          const cord = this.binToString(message)
+          this.mapData.push(cord)
         }
       })
       const { topic, qos } = this.subscription
@@ -244,9 +316,42 @@ export default {
         console.log('Subscribe to topics res', res)
       })
     },
-    openDoor () {
+    binToString (binArray) {
+      let result = ''
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < binArray.length; i++) {
+        result += String.fromCharCode(binArray[i])
+      }
+      return result
+    },
+    getLatLng (pathString) {
+      const cords = pathString.split(';')
+      return {
+        lat: parseFloat(cords[0]),
+        lng: parseFloat(cords[1])
+      }
+    },
+    goToAddress (data) {
+      const dataSplit = data.split(';')
+      const [lat, long] = dataSplit
+      window.open(`
+      https://www.google.com/maps/dir//'${lat},${long}'/@,13z/data=!4m6!4m5!1m0!1m3!2m2!1d${long}!2d${lat}?entry=ttu`, '_blank')
+    }
+    // openDoor () {
+    //   const { topic, qos } = this.publish
+    //   this.client.publish(topic, qos, error => {
+    //     if (error) {
+    //       console.log('Publish error', error)
+    //     }
+    //   })
+    // }
+  },
+  watch: {
+    engine (val) {
+      console.log(val)
       const { topic, qos } = this.publish
-      this.client.publish(topic, qos, error => {
+      const payload = (val) ? 'ON' : 'OFF'
+      this.client.publish(topic, payload, qos, error => {
         if (error) {
           console.log('Publish error', error)
         }

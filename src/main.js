@@ -3,12 +3,19 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from './utils/axios'
+import * as VueGoogleMaps from 'vue2-google-maps'
 import { mapActions, mapGetters } from 'vuex'
 import vuetify from './plugins/vuetify'
 import jwtDecode from 'jwt-decode'
+
 Vue.prototype.$axios = axios
 Vue.config.productionTip = false
-
+Vue.config.productionTip = false
+Vue.use(VueGoogleMaps, {
+  load: {
+    key: process.env.VUE_APP_GMAP_KEY
+  }
+})
 new Vue({
   router,
   store,
