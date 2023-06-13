@@ -88,8 +88,6 @@ export default {
     return {
       customMarker: require('@/assets/uptima.svg'),
       mapData: [],
-      battery: null,
-      viewLogs: false,
       engine: false,
       logs: [
       ],
@@ -106,11 +104,11 @@ export default {
         password: null
       },
       subscription: {
-        topic: 'uptima/tracker/location',
+        topic: null,
         qos: 0
       },
       publish: {
-        topic: 'uptima/tracker/engine',
+        topic: null,
         qos: 0
       },
       receiveNews: '',
@@ -122,29 +120,33 @@ export default {
       client: {
         connected: false
       },
-      topic: 'uptima/tracker/location',
       subscribeSuccess: false
     }
   },
   methods: {
     ...mapActions(['clearAll']),
-    batterySuffix (battery) {
-      const batteryAppx = Math.ceil(battery / 10) * 10
-      if (batteryAppx < 100) {
-        return `-${batteryAppx}`
-      } else {
-        return ''
-      }
-    },
     getLogs () {
-      const logsURI = `data?topic=${this.topic}`
+      const logsURI = `data?topic=${this.subscription.topic}`
       this.$axios
         .get(logsURI)
         .then((result) => {
           const logs = result.data.data
-          this.mapData = logs.map((d) => {
+          const logsData = logs.map((d) => {
             return d.data
           })
+          this.mapData = logsData.reverse()
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    },
+    getEngine () {
+      const engineURI = `data?topic=${this.publish.topic}`
+      this.$axios
+        .get(engineURI)
+        .then((result) => {
+          const logs = result.data.data
+          this.engine = (logs[0].data === 'ON')
         })
         .catch((err) => {
           console.log(err)
@@ -159,6 +161,8 @@ export default {
           this.connection.clientId = data.id
           this.connection.username = data.username
           this.connection.password = data.password
+          this.subscription.topic = (data.id === 'fc1b8ec2-392f-42cd-re5a-04604eb98ca4') ? 'uptima/tracker/location' : `${data.id}/location`
+          this.publish.topic = (data.id === 'fc1b8ec2-392f-42cd-re5a-04604eb98ca4') ? 'uptima/tracker/engine' : `${data.id}/engine`
           this.createConnection()
         })
         .catch((err) => {
@@ -179,7 +183,7 @@ export default {
         console.log('Connection failed', error)
       })
       this.client.on('message', (topic, message) => {
-        if (topic === 'uptima/tracker/location') {
+        if (topic === this.subscription.topic) {
           const cord = this.binToString(message)
           this.mapData.push(cord)
         }
@@ -221,7 +225,6 @@ export default {
   },
   watch: {
     engine (val) {
-      console.log(val)
       const { topic, qos } = this.publish
       const payload = (val) ? 'ON' : 'OFF'
       this.client.publish(topic, payload, qos, error => {
