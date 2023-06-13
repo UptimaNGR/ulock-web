@@ -81,7 +81,6 @@ export default {
   created () {
     if (!this.client.connected) {
       this.fetchMqttDetails()
-      this.getLogs()
     }
   },
   data () {
@@ -164,6 +163,8 @@ export default {
           this.subscription.topic = (data.id === 'fc1b8ec2-392f-42cd-re5a-04604eb98ca4') ? 'uptima/tracker/location' : `${data.id}/location`
           this.publish.topic = (data.id === 'fc1b8ec2-392f-42cd-re5a-04604eb98ca4') ? 'uptima/tracker/engine' : `${data.id}/engine`
           this.createConnection()
+          this.getLogs()
+          this.getEngine()
         })
         .catch((err) => {
           console.log(err)
