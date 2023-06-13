@@ -1,27 +1,33 @@
 <template>
-  <v-row align="center" justify="center">
-    <v-col v-if="client.connected">
-      <v-row>
-        <v-col>{{getUsername}}</v-col>
-        <v-col
-          class="d-flex align-center justify-center">
-          <v-switch
-            color="primary"
-            v-model="engine"
-          >
-            <v-icon left>
-              mdi-door-open
-            </v-icon>
-            Engine
-          </v-switch>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
+  <div class="home">
+    <div v-if="client.connected">
+      <header class="header">
+        <img src="@/assets/uptima.svg" alt="uptima logo">
+        <div class="header-right">
+          <div class="switch-engine">
+            <p>Switch Vehicle Engine</p>
+            <v-switch
+              color="primary"
+              v-model="engine"
+            >
+              <v-icon left>
+                mdi-door-open
+              </v-icon>
+              Engine
+            </v-switch>
+          </div>
+          <div class="navigation">
+            <p class="username">{{getUsername}}</p>
+            <button class="logout-button" @click="logout">Logout</button>
+          </div>
+        </div>
+      </header>
+      <div>
+        <div>
           <div v-if="mapData.length > 0">
             <GmapMap
               :center="getLatLng(mapData[mapData.length-1])"
-              :zoom="20"
+              :zoom="getScreenWidth <= 400 ? 100: 20"
               style="width: 100vw; height: 100vh"
               map-type-id="hybrid"
             >
@@ -41,37 +47,36 @@
                 :clickable="true"
                 @click="goToAddress(mapData[mapData.length-1])"
                 :draggable="false"
-                title="Current location"
+                title="Click to view Current location"
+                class="custom-marker"
               />
             </GmapMap>
           </div>
-        </v-col>
-      </v-row>
-    </v-col>
-    <v-col
-      cols="12"
-      sm="6" v-else>
-      <v-card
-      outlined
-      tile
-      >
-        <v-card-title>
-          Disconnected
-        </v-card-title>
-        <v-card-text>
-          Please check your internet connection.
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+        </div>
+      </div>
+    </div>
+    <div v-else class="offline">
+      <div>
+          <v-card-title>
+            Disconnected
+          </v-card-title>
+          <v-card-text>
+            Please wait or check your internet connection.
+          </v-card-text>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import mqtt from 'mqtt'
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 export default {
   computed: {
-    ...mapGetters(['getUsername'])
+    ...mapGetters(['getUsername']),
+    getScreenWidth () {
+      return window.screen.availWidth
+    }
   },
   created () {
     if (!this.client.connected) {
@@ -81,6 +86,7 @@ export default {
   },
   data () {
     return {
+      customMarker: require('@/assets/uptima.svg'),
       mapData: [],
       battery: null,
       viewLogs: false,
@@ -121,6 +127,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['clearAll']),
     batterySuffix (battery) {
       const batteryAppx = Math.ceil(battery / 10) * 10
       if (batteryAppx < 100) {
@@ -207,6 +214,9 @@ export default {
       const [lat, long] = dataSplit
       window.open(`
       https://www.google.com/maps/dir//'${lat},${long}'/@,13z/data=!4m6!4m5!1m0!1m3!2m2!1d${long}!2d${lat}?entry=ttu`, '_blank')
+    },
+    logout () {
+      this.clearAll()
     }
   },
   watch: {
@@ -224,6 +234,55 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss">
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  align-items: center;
+  background: #f0f3f4d6;
+  border-bottom: 5px solid #3886f6;
+  @media screen and (max-width: 768px) {
+    padding: 10px;
+  }
+}
+.header img {
+  width: 100px;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  @media screen and (max-width: 768px) {
+    flex-direction: column-reverse;
+    gap: 0;
+    align-items: flex-end;
+  }
+}
+.username {
+  text-transform: capitalize;
+  font-weight: 700;
+}
+.switch-engine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.switch-engine p {
+  font-size: 14px;
+  font-weight: 400;
+}
+.navigation {
+  text-align: right;
+}
+.logout-button {
+  cursor: pointer;
+  color: #ff0004;
+}
+.offline {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>

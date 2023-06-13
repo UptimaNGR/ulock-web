@@ -1,48 +1,11 @@
 <template>
-  <v-app>
-    <!-- <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar> -->
-
-    <v-main>
-      <v-container fill-height>
-        <router-view/>
-      </v-container>
-    </v-main>
-  </v-app>
+  <div class="app">
+    <router-view />
+    <footer>
+      <p class="copyright">© 2022 Uptima Solutions</p>
+      <p class="phone">08168205169 08140710074</p>
+    </footer>
+  </div>
 </template>
 
 <script>
@@ -60,5 +23,23 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Catamaran:wght@200;400;700&family=Poppins:wght@400;500;600&display=swap');
+
+.app {
+  font-family: 'Catamaran', sans-serif;
+}
+
+footer {
+  padding: 50px;
+  text-align: center;
+  color: #627081;
+  font-weight: 400;
+}
+.copyright {
+  font-size: 18px;
+}
+.phone {
+  font-size: 16px;
+}
 </style>

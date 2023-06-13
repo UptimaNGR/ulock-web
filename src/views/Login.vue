@@ -1,40 +1,44 @@
 <template>
-  <v-row align="center" justify="center">
-    <v-col
-      justify="center"
-      cols="12"
-      sm="6">
-      <v-form ref="form" @submit.prevent="login" v-model="valid">
-        <v-text-field
-          v-model="username"
-          :rules="[rules.required]"
-          label="Username"
-        ></v-text-field>
-          <v-text-field
-          v-model="password"
-          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          :rules="[rules.required, rules.min]"
-          :type="show ? 'text' : 'password'"
-          name="password"
-          label="Password"
-          @click:append="show = !show"
-        ></v-text-field>
-        <v-row align="center" justify="center">
-          <v-col>
-            <v-btn
-              class="mr-4"
-              outlined
-              color="primary"
-              type="submit"
-              :disabled="!valid"
-            >
-              Login
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-form>
-    </v-col>
-  </v-row>
+  <div class="login">
+    <div class="login__content">
+      <div class="login__content__logo">
+        <img src="@/assets/uptima.svg" alt="uptima logo">
+      </div>
+      <div>
+        <div>
+          <v-form ref="form" @submit.prevent="login" v-model="valid">
+            <v-text-field
+              v-model="username"
+              :rules="[rules.required]"
+              label="Username"
+            ></v-text-field>
+              <v-text-field
+              v-model="password"
+              :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+              :rules="[rules.required, rules.min]"
+              :type="show ? 'text' : 'password'"
+              name="password"
+              label="Password"
+              @click:append="show = !show"
+            ></v-text-field>
+            <v-row align="center" justify="center">
+              <v-col>
+                <v-btn
+                  class="mr-4"
+                  outlined
+                  color="primary"
+                  type="submit"
+                  :disabled="!valid"
+                >
+                  Login
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-form>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -108,5 +112,20 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+.login {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &__content {
+    min-width: 448px;
+    box-shadow: -4px -4px 10px rgba(210, 192, 192, 0.25), 4px 4px 10px rgba(210, 192, 192, 0.25);
+    padding: 50px;
+    &__logo {
+      width: 60%;
+      margin: 30px auto;
+    }
+  }
+}
 </style>
