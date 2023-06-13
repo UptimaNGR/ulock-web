@@ -71,6 +71,7 @@
 <script>
 import mqtt from 'mqtt'
 import { mapActions, mapGetters } from 'vuex'
+import crypto from 'crypto'
 export default {
   computed: {
     ...mapGetters(['getUsername']),
@@ -156,12 +157,13 @@ export default {
       this.$axios
         .get(mqttURI)
         .then((result) => {
-          const data = result.data.data.mqttInfo[0]
+          const data = result.data.data.mqttInfo
+          const { enc, iv, authTag } = data.password
           this.connection.clientId = data.id
           this.connection.username = data.username
-          this.connection.password = data.password
-          this.subscription.topic = (data.id === 'fc1b8ec2-392f-42cd-re5a-04604eb98ca4') ? 'uptima/tracker/location' : `${data.id}/location`
-          this.publish.topic = (data.id === 'fc1b8ec2-392f-42cd-re5a-04604eb98ca4') ? 'uptima/tracker/engine' : `${data.id}/engine`
+          this.connection.password = this.decrypt(enc, iv, authTag)
+          this.subscription.topic = data.topics.split(',').filter((o) => o.includes('location'))[0]
+          this.publish.topic = data.topics.split(',').filter((o) => o.includes('engine'))[0]
           this.createConnection()
           this.getLogs()
           this.getEngine()
@@ -222,6 +224,16 @@ export default {
     },
     logout () {
       this.clearAll()
+    },
+    decrypt (enc, iv, authTag) {
+      const ALGO = 'aes-256-gcm'
+      const iv2 = Buffer.from(iv, 'hex')
+      const authTag2 = Buffer.from(authTag, 'hex')
+      const decipher = crypto.createDecipheriv(ALGO, process.env.VUE_APP_API_ENCRYPTION_KEY, iv2)
+      decipher.setAuthTag(authTag2)
+      let str = decipher.update(enc, 'hex', 'utf8')
+      str += decipher.final('utf8')
+      return str
     }
   },
   watch: {
