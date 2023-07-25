@@ -26,7 +26,7 @@
         <div>
           <div v-if="mapData.length > 0">
             <GmapMap
-              :center="getLatLng(mapData[mapData.length-1])"
+              :center="mapData[mapData.length-1]"
               :zoom="getScreenWidth <= 400 ? 100: 20"
               style="width: 100vw; height: 100vh"
               map-type-id="hybrid"
