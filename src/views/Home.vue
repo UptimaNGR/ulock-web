@@ -45,7 +45,7 @@
               <GmapMarker
                 :position="mapData[mapData.length-1]"
                 :clickable="true"
-                @click="mapData[mapData.length-1]"
+                @click="goToAddress(mapData[mapData.length-1])"
                 :draggable="false"
                 title="Click to view Current location"
                 class="custom-marker"
@@ -217,10 +217,9 @@ export default {
       }
     },
     goToAddress (data) {
-      const dataSplit = data.split(';')
-      const [lat, long] = dataSplit
+      const { lat, lng } = data
       window.open(`
-      https://www.google.com/maps/dir//'${lat},${long}'/@,13z/data=!4m6!4m5!1m0!1m3!2m2!1d${long}!2d${lat}?entry=ttu`, '_blank')
+      https://www.google.com/maps/dir//'${lat},${lng}'/@,13z/data=!4m6!4m5!1m0!1m3!2m2!1d${lng}!2d${lat}?entry=ttu`, '_blank')
     },
     logout () {
       this.clearAll()
