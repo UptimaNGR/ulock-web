@@ -38,12 +38,12 @@
                 :options="{
                   geodesic: true,
                   strokeColor: '#008000',
-                  path: mapData.map((path) => { return getLatLng(path) }),
+                  path: mapData,
                   strokeWeight: '10'
                 }"
               ></GmapPolyline>
               <GmapMarker
-                :position="getLatLng(mapData[mapData.length-1])"
+                :position="mapData[mapData.length-1]"
                 :clickable="true"
                 @click="goToAddress(mapData[mapData.length-1])"
                 :draggable="false"
@@ -132,9 +132,9 @@ export default {
         .then((result) => {
           const logs = result.data.data
           const logsData = logs.map((d) => {
-            return d.data
+            return this.getLatLng(d.data)
           })
-          this.mapData = logsData.reverse()
+          this.mapData = logsData.filter((o) => (o.lat && o.lat !== 0) && (o.lng && o.lng !== 0)).reverse()
         })
         .catch((err) => {
           console.log(err)
@@ -217,10 +217,9 @@ export default {
       }
     },
     goToAddress (data) {
-      const dataSplit = data.split(';')
-      const [lat, long] = dataSplit
+      const { lat, lng } = data
       window.open(`
-      https://www.google.com/maps/dir//'${lat},${long}'/@,13z/data=!4m6!4m5!1m0!1m3!2m2!1d${long}!2d${lat}?entry=ttu`, '_blank')
+      https://www.google.com/maps/dir//'${lat},${lng}'/@,13z/data=!4m6!4m5!1m0!1m3!2m2!1d${lng}!2d${lat}?entry=ttu`, '_blank')
     },
     logout () {
       this.clearAll()
