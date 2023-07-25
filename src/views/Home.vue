@@ -38,14 +38,14 @@
                 :options="{
                   geodesic: true,
                   strokeColor: '#008000',
-                  path: mapData.map((path) => { return getLatLng(path) }),
+                  path: mapData,
                   strokeWeight: '10'
                 }"
               ></GmapPolyline>
               <GmapMarker
-                :position="getLatLng(mapData[mapData.length-1])"
+                :position="mapData[mapData.length-1]"
                 :clickable="true"
-                @click="goToAddress(mapData[mapData.length-1])"
+                @click="mapData[mapData.length-1]"
                 :draggable="false"
                 title="Click to view Current location"
                 class="custom-marker"
@@ -132,9 +132,9 @@ export default {
         .then((result) => {
           const logs = result.data.data
           const logsData = logs.map((d) => {
-            return d.data
+            return this.getLatLng(d.data)
           })
-          this.mapData = logsData.reverse()
+          this.mapData = logsData.filter((o) => (o.lat && o.lat !== 0) && (o.lng && o.lng !== 0)).reverse()
         })
         .catch((err) => {
           console.log(err)
