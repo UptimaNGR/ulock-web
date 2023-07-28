@@ -146,7 +146,7 @@ export default {
         .get(engineURI)
         .then((result) => {
           const logs = result.data.data
-          this.engine = (logs[0].data === 'ON')
+          this.engine = (logs[0].data === 'OFF')
         })
         .catch((err) => {
           console.log(err)
@@ -188,7 +188,7 @@ export default {
       this.client.on('message', (topic, message) => {
         if (topic === this.subscription.topic) {
           const cord = this.binToString(message)
-          this.mapData.push(cord)
+          this.mapData.push(this.getLatLng(cord))
         }
       })
       const { topic, qos } = this.subscription
@@ -238,7 +238,7 @@ export default {
   watch: {
     engine (val) {
       const { topic, qos } = this.publish
-      const payload = (val) ? 'ON' : 'OFF'
+      const payload = (val) ? 'OFF' : 'ON'
       this.client.publish(topic, payload, qos, error => {
         if (error) {
           console.log('Publish error', error)

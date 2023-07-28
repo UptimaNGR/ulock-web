@@ -1,5 +1,5 @@
 <template>
-  <div class="app">
+  <div class="app" data-app>
     <router-view />
     <footer>
       <p class="copyright">© 2022 Uptima Solutions</p>
