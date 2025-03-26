@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <div v-if="client.connected">
+    <div v-if="client.connected || connectionType !== 'mqtt'">
       <header class="header">
         <img src="@/assets/uptima.svg" alt="uptima logo">
         <div class="header-right">
