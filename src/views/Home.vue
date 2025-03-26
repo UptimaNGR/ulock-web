@@ -120,7 +120,8 @@ export default {
       client: {
         connected: false
       },
-      subscribeSuccess: false
+      subscribeSuccess: false,
+      connectionType: ''
     }
   },
   methods: {
@@ -146,7 +147,7 @@ export default {
         .get(engineURI)
         .then((result) => {
           const logs = result.data.data
-          this.engine = (logs[0].data === 'OFF')
+          this.engine = logs[0] ? (logs[0].data === 'OFF') : 'ON'
         })
         .catch((err) => {
           console.log(err)
@@ -164,6 +165,7 @@ export default {
           this.connection.password = this.decrypt(enc, iv, authTag)
           this.subscription.topic = data.topics.split(',').filter((o) => o.includes('location'))[0]
           this.publish.topic = data.topics.split(',').filter((o) => o.includes('engine'))[0]
+          this.connectionType = data.subscriber_type
           this.createConnection()
           this.getLogs()
           this.getEngine()
@@ -173,6 +175,9 @@ export default {
         })
     },
     createConnection () {
+      if (this.connectionType !== 'mqtt') {
+        return null
+      }
       const connectUrl = `mqtt://${this.connection.host}:${this.connection.port}`
       try {
         this.client = mqtt.connect(connectUrl, { clientId: this.connection.clientId, protocol: 'wss', username: this.connection.username, password: this.connection.password })
@@ -239,6 +244,9 @@ export default {
     engine (val) {
       const { topic, qos } = this.publish
       const payload = (val) ? 'OFF' : 'ON'
+      if (this.connectionType !== 'mqtt') {
+        return null
+      }
       this.client.publish(topic, payload, qos, error => {
         if (error) {
           console.log('Publish error', error)
